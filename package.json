@@ -1,0 +1,37 @@
+{
+  "name": "4front-html-preprocessor",
+  "version": "0.0.0",
+  "description": "Html pre-processor middleware for 4front client-app engine",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test --recursive"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/4front/html-preprocessor.git"
+  },
+  "keywords": [
+    "4front"
+  ],
+  "author": "David Von Lehman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/4front/html-preprocessor/issues"
+  },
+  "homepage": "https://github.com/4front/html-preprocessor",
+  "dependencies": {
+    "buffered-stream": "0.0.1",
+    "cheerio": "^0.18.0",
+    "debug": "^2.1.1",
+    "express": "^4.11.1",
+    "htmlparser2": "^3.8.2",
+    "lodash": "^2.4.1",
+    "through2": "^0.6.3",
+    "ua-parser": "^0.3.5"
+  },
+  "devDependencies": {
+    "bl": "^0.9.4",
+    "mocha": "^2.1.0",
+    "supertest": "^0.15.0"
+  }
+}

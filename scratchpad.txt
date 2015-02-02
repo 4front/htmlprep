@@ -1,0 +1,63 @@
+var _ = require('lodash');
+var $ = require('cheerio');
+var uaParser = require('ua-parser');
+
+// Sample userAgent rule:
+var cannedConditions = {
+  internetExplorerLessThan9: {
+    ua: {
+      family: "Internet Explorer",
+      major: {'$lt': 9}
+    }
+  },
+  iPhones: {
+    device: 'iPhone'
+  }
+};
+
+module.exports = function(options) {
+  options = _.defaults(options, {
+    namespace: '4front', // The prefix for custom attributes that signal pre-processing, i.e. data-ff-autoresponse
+  });
+
+  return function(req, res, next) {
+    if (_.isString(req.html) === false)
+      return next(new Error("Missing res.html string"));
+
+    req.$ = loadHtml(req.html);
+    if (req.$ instanceof Error)
+      return next(html);
+
+    // if (_.isArray(options.userAgentRules)) {
+    //   var userAgent = usParser(req.headers['user-agent']);
+    //   for (var i=0; i<options.userAgentRules.length; i++) {
+        
+    //   }
+    // }
+  }
+};
+
+function isUserAgentMatch(rule, userAgent) {
+
+}
+
+function loadHtml(html) {
+  try {
+    return cheerio.load(html, {recognizeSelfClosing: true});
+  }
+  catch (err) {
+    return new Error("Invalid html: " + err.message));
+  }
+}
+
+module.exports = function(req, res, next) {
+
+  return function(req, res, next) {
+    // Check if the app has autoResponder turned on.
+    if (_.isArray(req.virtualApp.autoResponders) === false)
+      return next();
+
+    
+
+  };
+};
