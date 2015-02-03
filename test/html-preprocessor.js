@@ -2,6 +2,9 @@ var assert = require('assert');
 var htmlPreprocessor = require('..');
 var stream = require('stream');
 var _ = require('lodash');
+var debug = require('debug');
+
+debug.enable('4front:*');
 
 describe('htmlPreprocessor()', function() {
   it('pipes html', function(done) {
@@ -38,6 +41,52 @@ describe('htmlPreprocessor()', function() {
       if (err) return done(err);
 
       assert.equal(output.replace(/\n/g, ''), html.slice(0, 1).concat(html.slice(5)).join(''));
+      done();
+    });
+  });
+
+  it('injects head script blocks', function(done) {
+    var html = '<html><head><title>title</title></head></html>';
+    var script = 'window.alert("message");';
+
+    runProcessor(html, {headScriptBlocks:[script]}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<html><head><title>title</title><script>window.alert("message");</script></head></html>');
+      done();
+    });
+  });
+
+  it('injects head css blocks', function(done) {
+    var html = '<html><head><title>title</title></head></html>';
+    var css = 'body { padding: 20px; }';
+
+    runProcessor(html, {headCssBlocks:[css]}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<html><head><title>title</title><style>body { padding: 20px; }</style></head></html>');
+      done();
+    });
+  });
+
+  it('replaces relative css urls with absolute urls', function(done) {
+    var html = '<html><head><title>title</title><link rel="stylesheet" href="css/styles.css"></head></html>';
+
+    runProcessor(html, {cdnify: true, cdnHost: 'cdnhost/abcd'}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<html><head><title>title</title><link rel="stylesheet" href="//cdnhost/abcd/css/styles.css"></head></html>');
+      done();
+    });
+  });
+
+  it('replaces relative css urls with absolute urls', function(done) {
+    var html = '<html><body><script src="js/app.js"></script></html>';
+
+    runProcessor(html, {cdnify: true, cdnHost: 'cdnhost/abc'}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<html><body><script src="//cdnhost/abc/js/app.js"></script></body></html>');
       done();
     });
   });
