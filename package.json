@@ -1,36 +1,39 @@
 {
-  "name": "4front-html-preprocessor",
+  "name": "htmlprep",
   "version": "0.0.0",
-  "description": "Html pre-processor middleware for 4front client-app engine",
+  "description": "High-performance streaming HTML pre-processor designed to run in middleware.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test --recursive"
+    "test": "mocha --reporter spec --bail --check-leaks test/",
+    "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- --reporter dot --check-leaks test/",
+    "test-travis": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --reporter spec --check-leaks test/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/4front/html-preprocessor.git"
+    "url": "https://github.com/4front/htmlprep.git"
   },
   "keywords": [
-    "4front"
+    "HTML",
+    "preprocessor",
+    "express"
   ],
   "author": "David Von Lehman",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/4front/html-preprocessor/issues"
+    "url": "https://github.com/4front/htmlprep/issues"
   },
-  "homepage": "https://github.com/4front/html-preprocessor",
+  "homepage": "https://github.com/4front/htmlprep",
   "dependencies": {
-    "buffered-stream": "0.0.1",
-    "cheerio": "^0.18.0",
     "debug": "^2.1.1",
-    "express": "^4.11.1",
     "htmlparser2": "^3.8.2",
     "lodash": "^2.4.1",
     "through2": "^0.6.3",
     "ua-parser": "^0.3.5"
   },
   "devDependencies": {
-    "bl": "^0.9.4",
+    "cheerio": "^0.18.0",
+    "coveralls": "^2.11.2",
+    "istanbul": "^0.3.5",
     "mocha": "^2.1.0",
     "supertest": "^0.15.0"
   }
