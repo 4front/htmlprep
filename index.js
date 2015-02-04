@@ -12,8 +12,8 @@ exports = module.exports = function(options) {
   options = _.defaults(options, {
     attrPrefix: null,
     buildType: 'debug',
-    livereload: false,      // Should livereload script be injected
-    livereloadPort: 35729,  // Port that livereload to listen on
+    liveReload: false,      // Should livereload script be injected
+    liveReloadPort: 35729,  // Port that livereload to listen on
     inject: {}   // Blocks of HTML to be injected
   });
 
@@ -46,7 +46,7 @@ exports = module.exports = function(options) {
           inPlaceholder = true;
           return;
         }
-        
+
         // If in removeMode, don't write to the output stream.
         if (tagMatchContext) {
           if (name === tagMatchContext.name) {
@@ -127,8 +127,8 @@ exports = module.exports = function(options) {
         if (name === 'body') {
           if (options.inject.body)
             self.push(options.inject.body);
-          if (options.livereload === true)
-            self.push('<script src="//localhost:' + options.livereloadPort + '/livereload.js"></script>');
+          if (options.liveReload === true)
+            self.push('<script src="//localhost:' + options.liveReloadPort + '/livereload.js"></script>');
         }
 
         self.push("</" + name + ">");

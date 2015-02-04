@@ -166,7 +166,7 @@ describe('htmlprep()', function() {
   it('injects livereload script', function(done) {
     var html = '<html><body><h1>title</h1></body></html>';
 
-    runProcessor(html, {livereload: true}, function(err, output) {
+    runProcessor(html, {liveReload: true}, function(err, output) {
       if (err) return done(err);
 
       assert.equal(output, '<html><body><h1>title</h1><script src="//localhost:35729/livereload.js"></script></body></html>');

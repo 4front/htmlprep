@@ -9,6 +9,7 @@ High-performant HTML pre-processor designed to execute at runtime rather than as
 
 ## Example
 Use in express route or middleware:
+
 ```js
 var htmlprep = require('htmlprep');
 
@@ -30,6 +31,7 @@ Rewrite relative asset paths to point to an absolute CDN url. If the `cdnHost` o
 <img src="/images/logo.gif">
 ```
 becomes:
+
 ```html
 <script src="//cdnhost.com/dir/js/app.js"></script>
 <img src="//cdnhost.com/dir/images/logo.gif">
@@ -49,7 +51,9 @@ Omit HTML blocks or individual tags based on a custom build attribute. Useful fo
 </div>
 <script src="dist/app.min.js" data-build="release">
 ```
+
 When called with `buildType:"debug"` becomes:
+
 ```html
 <link rel="stylesheet" href="/css/layout.css">
 <link rel="stylesheet" href="/css/nav.css">
@@ -61,6 +65,7 @@ When called with `buildType:"debug"` becomes:
 ```
 
 And with `buildType:"release"`:
+
 ```html
 <link rel="stylesheet" href="/dist/app.min.css">
 <script src="dist/app.min.js">
@@ -68,6 +73,7 @@ And with `buildType:"release"`:
 
 ### Block injection
 Inject blocks of HTML at render time to the `<head>` or `<body>` tags or to a named block specified with the `data-placeholder` attribute. 
+
 ```js
 htmlprep({
  inject: {
@@ -90,6 +96,7 @@ htmlprep({
 </html>
 ```
 becomes:
+
 ```html
 <html>
  <head>
@@ -110,6 +117,16 @@ Appends the livereload script at the end of the body.
 ```js
 <script src="//localhost:35729/livereload.js"></script>
 ```
+
+## Options
+All the possible attributes that can be specifed in the `options` parameter.
+
+* `buildType` - All elements with 
+* `liveReload` - Specify if the localhost LiveReload script should be injected.
+* `liveReloadPort` - The port number for livereload.js, defaults to 35729.
+* `cdnify` - Specify that relative asset URLs be repointed to an absolute CDN path.
+* `cdnHost` - The CDN host to point to if `cdnify` is true. 
+* `inject` - Object of HTML blocks to inject over placeholders. The keys `body` and `head` will append to those respective tag names rather than a corresponding placeholder.
 
 ## Roadmap
 ### User-Agent specific blocks
