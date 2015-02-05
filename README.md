@@ -125,9 +125,9 @@ Appends the livereload script at the end of the body.
 ## Options
 All the possible attributes that can be specifed in the `options` parameter.
 
-* __`buildType`__ - All elements with 
-* __`livereload`__ - Specify if the localhost LiveReload script should be injected.
-* __`livereloadPort`__ - The port number for livereload.js, defaults to 35729.
+* __`buildType`__ - Remove all elements that have a `data-build` attribute whose value does not match the specified value.
+* __`liveReload`__ - Specify if the localhost LiveReload script should be injected.
+* __`liveReloadPort`__ - The port number for livereload.js, defaults to 35729.
 * __`cdnify`__ - Specify that relative asset URLs be repointed to an absolute CDN path.
 * __`cdnHost`__ - The CDN host to point to if `cdnify` is true. 
 * __`inject`__ - Object of HTML blocks to inject over placeholders. The keys `body` and `head` will append to those respective tag names rather than a corresponding placeholder.
@@ -136,12 +136,6 @@ All the possible attributes that can be specifed in the `options` parameter.
 ## Roadmap
 ### User-Agent specific blocks
 Exclude blocks of HTML where the request user-agent does not pass an expression test. Useful for including polyfill scripts conditionally or excluding content from mobile devices to lighten the HTML payload.
-
-```html
-<div data-useragent="IE<=8">
-</div>
-<script src="js/mobile-optimized.js" data-useragent="phone"></script>
-```
 
 [npm-image]: https://img.shields.io/npm/v/htmlprep.svg?style=flat
 [npm-url]: https://npmjs.org/package/htmlprep
