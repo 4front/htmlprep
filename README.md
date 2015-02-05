@@ -5,7 +5,7 @@
 [![Build Status][travis-image]][travis-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
 
-High-performant HTML pre-processor designed to execute at runtime rather than as a build step. Utilizes a streaming API based on [htmlparser2](https://www.npmjs.com/package/htmlparser2). Useful as a zero-config alternative to gulp and grunt plugins for optimizing HTML files. 
+High-performance HTML pre-processor designed to be run in middleware, but also suitable for packaging up in a build task. Utilizes a streaming API based on [htmlparser2](https://www.npmjs.com/package/htmlparser2). Useful when you need to apply basic markup modifications to HTML files at run-time and as a zero-config alternative to gulp and grunt plugins for optimizing release versions of HTML pages.
 
 Makes use of [standard-compliant](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Using_data_attributes) `data-*` attributes to annotate the markup indicating where custom processing should occur. These attributes are stripped out of the final output, so the HTML sent down to the browser leaves no traces behind. 
 
