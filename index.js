@@ -119,7 +119,7 @@ exports = module.exports = function(options) {
     if (options.cdnify) {
       if (name === 'link' && attribs.href)
         cdnifyPath(attribs, 'href');
-      else if (_.contains(['script', 'img'], name))
+      else if (_.contains(['script', 'img', 'embed'], name))
         cdnifyPath(attribs, 'src');
     }
 
