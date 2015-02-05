@@ -32,9 +32,7 @@ describe('htmlprep()', function() {
             '<div>debug build</div>',
             '<script src="debug.js"></script>',
           '</div>',
-          '<div data-build="release">',
-            '<script src="release.js"></script>',
-          '</div>',
+          '<script src="release.js" data-build="release"></script>',
         '</html>'
       ].join('');
     });
@@ -52,9 +50,23 @@ describe('htmlprep()', function() {
       runProcessor(this.html, {buildType:'debug'}, function(err, output) {
         if (err) return done(err);
 
-        assert.equal(output, '<html><div>debug build</div><script src="debug.js"></script></html>');
+        assert.equal(output, '<html><div><div>debug build</div><script src="debug.js"></script></div></html>');
         done();
       });      
+    });
+  });
+
+  it('removes self-closing tags with build attribute', function(done) {
+    var html = '<html><img src="debug.jpg" data-build="debug"><img src="release.jpg" data-build="release"></html>';
+    var options = {
+      buildType: 'release'
+    };
+
+    runProcessor(html, options, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<html><img src="release.jpg"></html>');
+      done();
     });
   });
 
@@ -68,7 +80,7 @@ describe('htmlprep()', function() {
     runProcessor(html, options, function(err, output) {
       if (err) return done(err);
 
-      assert.equal(output, '<html>release</html>');
+      assert.equal(output, '<html><div>release</div></html>');
       done();
     });
   });
@@ -85,7 +97,7 @@ describe('htmlprep()', function() {
     runProcessor(html, options, function(err, output) {
       if (err) return done(err);
 
-      assert.equal(output, '<html>debug</html>');
+      assert.equal(output, '<html><div><div>debug</div></div></html>');
       done();
     });
   });
@@ -136,7 +148,7 @@ describe('htmlprep()', function() {
     runProcessor(html, options, function(err, output) {
       if (err) return done(err);
 
-      assert.equal(output, '<html><body><!-- block1 --><hr><!-- block2 --></body></html>');
+      assert.equal(output, '<html><body><div><!-- block1 --></div><hr><div><!-- block2 --></div></body></html>');
       done();
     });
   });
@@ -181,6 +193,17 @@ describe('htmlprep()', function() {
       if (err) return done(err);
 
       assert.equal(output, '<html><head><link rel="stylesheet" href="app.css"></head></html>');
+      done();
+    });
+  });
+
+  it('handles processing instruction', function(done) {
+    var html = '<!DOCTYPE html><html></html>';
+
+    runProcessor(html, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, html);
       done();
     });
   });

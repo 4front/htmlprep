@@ -3,8 +3,9 @@ var _ = require('lodash');
 var debug = require('debug')('htmlprep');
 var Parser = require('htmlparser2').Parser;
 
-var singletonTags = ['link', 'meta', 'param', 'source', 'area', 'base', 'br', 'col', 
-  'command', 'embed', 'hr', 'img', 'input']
+var singletonTags = ['link', 'meta', 'param', 'source', 'area', 'base', 'br', 'col',
+  'command', 'embed', 'hr', 'img', 'input'
+]
 
 var absoluteUrlRe = /^(\/\/|http[s]?):\/\//i
 
@@ -12,145 +13,157 @@ exports = module.exports = function(options) {
   options = _.defaults(options, {
     attrPrefix: null,
     buildType: 'debug',
-    liveReload: false,      // Should livereload script be injected
-    liveReloadPort: 35729,  // Port that livereload to listen on
-    inject: {}   // Blocks of HTML to be injected
+    liveReload: false, // Should livereload script be injected
+    liveReloadPort: 35729, // Port that livereload to listen on
+    inject: {} // Blocks of HTML to be injected
+  });
+
+  // Map each custom attribute to the full actual attribute name with the data- prefix followed 
+  // by an optional custom prefix, i.e. data-custom-build
+  var customAttrs = {};
+  _.each(['build', 'placeholder'], function(name) {
+    customAttrs[name] = 'data-' + (options.attrPrefix ? (options.attrPrefix + '-') : '') + name;
   });
 
   if (options.cdnify && !options.cdnHost)
     throw new Error("If cdnify option is true, a cdnHost must be specified.");
 
   return through2(function(chunk, enc, callback) {
-    var self = this;
-    
-    // var removingTag = null;
-    // var removeStack = 0;
-
-    var tagMatchContext = null;
-    var inPlaceholder = false;
+    var context = {
+      output: this,
+      tagMatch: null
+    };
 
     var parser = new Parser({
       onopentag: function(name, attribs) {
-        name = name.toLowerCase();
-        debug('open %s', name);
-
-        // If there is a data-placeholder attribute, replace the tag
-        // with the new contents.
-        var placeholder = getCustomAttr(attribs, 'placeholder');
-        if (_.isEmpty(placeholder) === false) {
-          if (_.isEmpty(options.inject[placeholder]) === false) {
-            debug('injecting block %s', placeholder);
-            self.push(options.inject[placeholder]);
-          }
-          
-          inPlaceholder = true;
-          return;
-        }
-
-        // If in removeMode, don't write to the output stream.
-        if (tagMatchContext) {
-          if (name === tagMatchContext.name) {
-            tagMatchContext.stack++;  
-            debug("increment match context stack %s", JSON.stringify(tagMatchContext));
-          }
-          if (tagMatchContext.omitContents === true) {
-            debug("in omit tag context, skipping %s tag", name);
-            return;
-          }
-        }
-
-        var buildType = getCustomAttr(attribs, 'build');
-        if (_.isUndefined(buildType) === false) {
-          tagMatchContext = {
-            name: name, 
-            stack:1, 
-            omitContents:buildType !== options.buildType
-          };
-          debug("begin tagMatchContext %s", JSON.stringify(tagMatchContext));
-          return;
-        }
-
-        // Some tools capitalize the 'S' in stylesheet but livereload 
-        // requires all lowercase.
-        if (name === 'link' && attribs.rel === 'Stylesheet')
-          attribs.rel = 'stylesheet';
-
-        // Rewrite asset src paths to the CDN host
-        if (options.cdnify) {
-          if (name === 'link' && attribs.href)
-            cdnifyPath(attribs, 'href');
-          else if (_.contains(['script','img'], name))
-            cdnifyPath(attribs, 'src');
-        }
-
-        self.push(buildTag(name, attribs));
+        onOpenTag(name, attribs, context)
       },
       onclosetag: function(name) {
-        name = name.toLowerCase();
-        debug('close %s', name);
-
-        // Placeholders must be empty tags, i.e. <div data-placeholder="name"></div>. So the first close tag
-        // encountered when inPlaceholder is true terminates the placeholder.
-        if (inPlaceholder) {
-          debug('close placeholder');
-          inPlaceholder = false;
-          return;
-        }
-
-        if (tagMatchContext) {
-          // var omitContents = tagMatchContext.omitContents;
-          if (name === tagMatchContext.name) {
-            tagMatchContext.stack--;
-            debug("decrement stack for tag context %s", JSON.stringify(tagMatchContext));
-            if (tagMatchContext.stack === 0) {
-              debug("end of tag %s match context", tagMatchContext.name);
-              tagMatchContext = null;
-              return;
-            }
-          } 
-          if (tagMatchContext.omitContents === true)
-            return;
-        }
-
-        // Don't close singleton tags
-        if (_.contains(singletonTags, name))
-          return;
-
-        // Special blocks appended to the head
-        if (name === 'head') {
-          if (options.inject.head) {
-            self.push(options.inject.head);
-          }
-        }
-
-        // Append the livereload script at the end of the body.
-        if (name === 'body') {
-          if (options.inject.body)
-            self.push(options.inject.body);
-          if (options.liveReload === true)
-            self.push('<script src="//localhost:' + options.liveReloadPort + '/livereload.js"></script>');
-        }
-
-        self.push("</" + name + ">");
+        onCloseTag(name, context);
       },
       ontext: function(text) {
-        if (tagMatchContext && tagMatchContext.omitContents === true)
+        if (context.tagMatch && context.tagMatch.omitContents === true)
           return;
 
-        self.push(text);
+        context.output.push(text);
+      },
+      onprocessinginstruction: function(name, data) {
+        context.output.push('<' + data + '>');
       },
       onend: function() {
         callback();
       }
+    }, {
+      decodeEntities: true
     });
 
     parser.write(chunk);
     parser.end();
   });
 
-  function getCustomAttr(attribs, name) {
-    var attrName = 'data-' + (options.attrPrefix ? (options.attrPrefix + '-') : '') + name;
-    return attribs[attrName];
+  function onOpenTag(name, attribs, context) {
+    name = name.toLowerCase();
+    debug('open %s', name);
+
+    // If there is a data-placeholder attribute, replace the tag
+    // with the new contents.
+    var placeholder = attribs[customAttrs.placeholder];
+    if (_.isEmpty(placeholder) === false) {
+      attribs[customAttrs.placeholder] = null;
+
+      context.output.push(buildTag(name, attribs));
+
+      if (_.isEmpty(options.inject[placeholder]) === false) {
+        debug('injecting block %s', placeholder);
+        context.output.push(options.inject[placeholder]);
+      }
+
+      return;
+    }
+
+    // If in removeMode, don't write to the output stream.
+    if (context.tagMatch) {
+      if (name === context.tagMatch.name) {
+        context.tagMatch.stack++;
+        debug("increment match context stack %s", JSON.stringify(context.tagMatch));
+      }
+      if (context.tagMatch.omitContents === true) {
+        debug("in omit tag context, skipping %s tag", name);
+        return;
+      }
+    }
+
+    var buildType = attribs[customAttrs.build];
+    if (_.isEmpty(buildType) === false) {
+      context.tagMatch = {
+        name: name,
+        stack: 1,
+        omitContents: buildType !== options.buildType
+      };
+
+      if (context.tagMatch.omitContents === false) {
+        attribs[customAttrs.build] = null;
+        context.output.push(buildTag(name, attribs));
+      }
+
+      debug("begin tagMatchContext %s", JSON.stringify(context.tagMatch));
+      return;
+    }
+
+    // Some tools capitalize the 'S' in stylesheet but livereload 
+    // requires all lowercase.
+    if (name === 'link' && attribs.rel === 'Stylesheet')
+      attribs.rel = 'stylesheet';
+
+    // Rewrite asset src paths to the CDN host
+    if (options.cdnify) {
+      if (name === 'link' && attribs.href)
+        cdnifyPath(attribs, 'href');
+      else if (_.contains(['script', 'img'], name))
+        cdnifyPath(attribs, 'src');
+    }
+
+    context.output.push(buildTag(name, attribs));
+  }
+
+  function onCloseTag(name, context) {
+    name = name.toLowerCase();
+    debug('close %s', name);
+
+    if (context.tagMatch) {
+      var omitContents = context.tagMatch.omitContents;
+      if (name === context.tagMatch.name) {
+        context.tagMatch.stack--;
+        debug("decrement stack for tag context %s", JSON.stringify(context.tagMatch));
+        if (context.tagMatch.stack === 0) {
+          debug("end of tag %s match context", context.tagMatch.name);
+          context.tagMatch = null;
+        }
+      }
+      if (omitContents === true)
+        return;
+    }
+
+    // Don't close singleton tags
+    if (_.contains(singletonTags, name))
+      return;
+
+    // Special blocks appended to the head
+    if (name === 'head') {
+      if (options.inject.head) {
+        context.output.push(options.inject.head);
+      }
+    }
+
+    // Append the livereload script at the end of the body.
+    if (name === 'body') {
+      if (options.inject.body)
+        context.output.push(options.inject.body);
+      if (options.liveReload === true)
+        context.output.push('<script src="//localhost:' + options.liveReloadPort + '/livereload.js"></script>');
+    }
+
+    context.output.push("</" + name + ">");
   }
 
   function cdnifyPath(attribs, pathAttr) {
@@ -165,7 +178,9 @@ exports = module.exports = function(options) {
 function buildTag(name, attribs) {
   var tag = "<" + name;
   for (var key in attribs) {
-    tag += " " + key + "=\"" + attribs[key] + "\"";
+    var attrValue = attribs[key];
+    if (_.isEmpty(attrValue) === false)
+      tag += " " + key + "=\"" + attrValue + "\"";
   }
   tag += ">";
   return tag;
