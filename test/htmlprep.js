@@ -175,6 +175,23 @@ describe('htmlprep()', function() {
     });
   });
 
+  it('performs attribute processing on tags with build attribute', function(done) {
+    var html = '<html><link rel="stylesheet" data-build="debug" href="css/styles.css"></html>';
+
+    var options = {
+      cdnify: true,
+      cdnHost: 'cdn.com',
+      buildType: 'debug'
+    };
+
+    runProcessor(html, options, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<html><link rel="stylesheet" href="//cdn.com/css/styles.css"></html>');
+      done();
+    });
+  });
+
   it('injects livereload script', function(done) {
     var html = '<html><body><h1>title</h1></body></html>';
 

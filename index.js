@@ -128,12 +128,11 @@ exports = module.exports = function(options) {
     if (_.isEmpty(buildType) === false) {
       context.startTagMatch(name, buildType !== options.buildType);
 
-      if (context.removing === false) {
-        attribs[customAttrs.build] = null;
-        context.writeOutput(buildTag(name, attribs));
-      }
+      if (context.removing === true)
+        return;
 
-      return;
+      debugger;
+      attribs[customAttrs.build] = null;
     }
 
     // Some tools capitalize the 'S' in stylesheet but livereload 
@@ -142,7 +141,7 @@ exports = module.exports = function(options) {
       attribs.rel = 'stylesheet';
 
     // Rewrite asset src paths to the CDN host
-    if (options.cdnify) {
+    if (options.cdnify === true) {
       if (name === 'link' && attribs.href)
         cdnifyPath(attribs, 'href');
       else if (_.contains(['script', 'img', 'embed'], name))
