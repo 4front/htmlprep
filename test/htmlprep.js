@@ -207,6 +207,17 @@ describe('htmlprep()', function() {
       done();
     });
   });
+
+  it('does not cdnify // leading urls', function(done) {
+    var html = '<html><script src="//maxcdn.com/script.js"></script></html>';
+
+    runProcessor(html, {cdnify: true, cdnHost: 'cdnhost.com'}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, html);
+      done();
+    });
+  });
 });
 
 function runProcessor(html, options, callback) {
