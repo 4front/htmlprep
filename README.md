@@ -20,15 +20,14 @@ var htmlprep = require('htmlprep');
 res.set('Content-Type', 'text/html');
 fs.createReadStream('./views/index.html')
   .pipe(htmlprep({
-    cdnify: true,
-    cdnHost: 'cdnhost.com/dir'
+    assetPathPrefix: '//cdnhost.com/dir'
   }))
   .pipe(res);
 ```
 
 ## Features
-### Repoint assets to CDN
-Rewrite relative asset paths to point to an absolute CDN url. If the `cdnHost` option is set to "cdnhost.com/dir" then:
+### Prepend prefix to asset URLs
+Prepend a string to all `src` and link `href` attributes. Canonical use case is repointing assets to a CDN. If the `assetPathPrefix` option is set to "//cdnhost.com/dir" then:
 
 ```html
 <script src="/js/app.js"></script>
@@ -128,8 +127,7 @@ All the possible attributes that can be specifed in the `options` parameter.
 * __`buildType`__ - Remove all elements that have a `data-build` attribute whose value does not match the specified value.
 * __`liveReload`__ - Specify if the localhost LiveReload script should be injected.
 * __`liveReloadPort`__ - The port number for livereload.js, defaults to 35729.
-* __`cdnify`__ - Specify that relative asset URLs be repointed to an absolute CDN path.
-* __`cdnHost`__ - The CDN host to point to if `cdnify` is true. 
+* __`assetPathPrefix`__ - The string to prepend to all relative asset URLs. Works with `script`, `link`, `img`, and `embed` tags.
 * __`inject`__ - Object of HTML blocks to inject over placeholders. The keys `body` and `head` will append to those respective tag names rather than a corresponding placeholder.
 * __`attrPrefix`__ - Specify a custom prefix for data attributes. So instead of `data-build`, you could use `data-myprefix-build`.
 

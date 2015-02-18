@@ -156,7 +156,7 @@ describe('htmlprep()', function() {
   it('replaces relative css urls with absolute urls', function(done) {
     var html = '<html><head><title>title</title><link rel="stylesheet" href="css/styles.css"></head></html>';
 
-    runProcessor(html, {cdnify: true, cdnHost: 'cdnhost/abcd'}, function(err, output) {
+    runProcessor(html, {assetPathPrefix: '//cdnhost/abcd'}, function(err, output) {
       if (err) return done(err);
 
       assert.equal(output, '<html><head><title>title</title><link rel="stylesheet" href="//cdnhost/abcd/css/styles.css"></head></html>');
@@ -167,7 +167,7 @@ describe('htmlprep()', function() {
   it('replaces relative css urls with absolute urls', function(done) {
     var html = '<html><body><script src="js/app.js"></script><img src="images/logo.jpg"></html>';
 
-    runProcessor(html, {cdnify: true, cdnHost: 'cdnhost/abc'}, function(err, output) {
+    runProcessor(html, {assetPathPrefix: '//cdnhost/abc'}, function(err, output) {
       if (err) return done(err);
 
       assert.equal(output, '<html><body><script src="//cdnhost/abc/js/app.js"></script><img src="//cdnhost/abc/images/logo.jpg"></body></html>');
@@ -176,18 +176,24 @@ describe('htmlprep()', function() {
   });
 
   it('performs attribute processing on tags with build attribute', function(done) {
-    var html = '<html><link rel="stylesheet" data-build="debug" href="css/styles.css"></html>';
-
+    // var html = '<html><link rel="stylesheet" data-build="debug" href="css/styles.css"></html>';
+    var html = '<head>' +
+      '<link data-build="release" rel="stylesheet" href="css/components.min.css">' +
+      '<link data-build="release" rel="stylesheet" href="css/app.min.css">' +  
+      '<link data-build="debug" rel="stylesheet" href="bower_components/bootstrap.css">' +
+      '<link data-build="debug" rel="stylesheet" href="tmp/styles.css"></head>';
+  
     var options = {
-      cdnify: true,
-      cdnHost: 'cdn.com',
+      assetPathPrefix: '//cdn.com',
       buildType: 'debug'
     };
 
     runProcessor(html, options, function(err, output) {
       if (err) return done(err);
 
-      assert.equal(output, '<html><link rel="stylesheet" href="//cdn.com/css/styles.css"></html>');
+      // assert.equal(output, '<html><link rel="stylesheet" href="//cdn.com/css/styles.css"></html>');
+
+      assert.equal(output, '<head><link rel="stylesheet" href="//cdn.com/bower_components/bootstrap.css"><link rel="stylesheet" href="//cdn.com/tmp/styles.css"></head>');
       done();
     });
   });
@@ -225,10 +231,10 @@ describe('htmlprep()', function() {
     });
   });
 
-  it('does not cdnify // leading urls', function(done) {
+  it('does not prefix the asset path to // leading urls', function(done) {
     var html = '<html><script src="//maxcdn.com/script.js"></script></html>';
 
-    runProcessor(html, {cdnify: true, cdnHost: 'cdnhost.com'}, function(err, output) {
+    runProcessor(html, {assetPathPrefix: 'cdnhost.com'}, function(err, output) {
       if (err) return done(err);
 
       assert.equal(output, html);

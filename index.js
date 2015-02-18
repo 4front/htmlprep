@@ -1,6 +1,6 @@
 var through2 = require('through2');
 var _ = require('lodash');
-var debug = require('debug')('htmlprep');
+var debug = require('debug')('4front:htmlprep');
 var Parser = require('htmlparser2').Parser;
 var ParserContext = require('./lib/parserContext');
 
@@ -18,7 +18,8 @@ exports = module.exports = function(options) {
     liveReloadPort: 35729, // Port that livereload to listen on
     inject: {}, // Blocks of HTML to be injected
     variation: null, // The name of the variation to render. Omit for default content.
-    contentVariations: null // File with the content variations
+    contentVariations: null, // File with the content variations
+    assetPathPrefix: null
   });
 
   // Map each custom attribute to the full actual attribute name with the data- prefix followed 
@@ -27,9 +28,6 @@ exports = module.exports = function(options) {
   _.each(['build', 'placeholder', 'content-variation'], function(name) {
     customAttrs[name] = 'data-' + (options.attrPrefix ? (options.attrPrefix + '-') : '') + name;
   });
-
-  if (options.cdnify && !options.cdnHost)
-    throw new Error("If cdnify option is true, a cdnHost must be specified.");
 
   // if (!_.isEmpty(options.variations)) {
   //   // Load the variations into a map
@@ -140,12 +138,13 @@ exports = module.exports = function(options) {
     if (name === 'link' && attribs.rel === 'Stylesheet')
       attribs.rel = 'stylesheet';
 
-    // Rewrite asset src paths to the CDN host
-    if (options.cdnify === true) {
+    // Prepend asset paths if a prefix was provided. This is most often used to 
+    // point static assets to a CDN.
+    if (_.isEmpty(options.assetPathPrefix) === false) {
       if (name === 'link' && attribs.href)
-        cdnifyPath(attribs, 'href');
+        prependAssetPath(attribs, 'href');
       else if (_.contains(['script', 'img', 'embed'], name))
-        cdnifyPath(attribs, 'src');
+        prependAssetPath(attribs, 'src');
     }
 
     context.writeOutput(buildTag(name, attribs));
@@ -183,7 +182,7 @@ exports = module.exports = function(options) {
     context.writeOutput("</" + name + ">");
   }
 
-  function cdnifyPath(attribs, pathAttr) {
+  function prependAssetPath(attribs, pathAttr) {
     if (_.isEmpty(attribs[pathAttr]))
       return;
 
@@ -191,7 +190,7 @@ exports = module.exports = function(options) {
     if (absoluteUrlRe.test(attribs[pathAttr]))
       return;
 
-    attribs[pathAttr] = '//' + options.cdnHost + (attribs[pathAttr][0] === '/' ? '' : '/') + attribs[pathAttr];
+    attribs[pathAttr] = options.assetPathPrefix + (attribs[pathAttr][0] === '/' ? '' : '/') + attribs[pathAttr];
   }
 };
 
