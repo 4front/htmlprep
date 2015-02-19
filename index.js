@@ -173,8 +173,11 @@ exports = module.exports = function(options) {
 
     // Append the livereload script at the end of the body.
     if (name === 'body') {
-      if (options.inject.body)
+      if (options.inject.body) {
+        debug('inject body block');
         context.writeOutput(options.inject.body);
+      }
+
       if (options.liveReload === true)
         context.writeOutput('<script src="//localhost:' + options.liveReloadPort + '/livereload.js"></script>');
     }
@@ -195,10 +198,13 @@ exports = module.exports = function(options) {
 };
 
 function buildTag(name, attribs) {
+  debugger;
   var tag = "<" + name;
   for (var key in attribs) {
     var attrValue = attribs[key];
-    if (_.isEmpty(attrValue) === false)
+    if (_.isString(attrValue) && attrValue.length === 0)
+      tag += " " + key;
+    else if (_.isNull(attrValue) === false)
       tag += " " + key + "=\"" + attrValue + "\"";
   }
   tag += ">";

@@ -241,6 +241,17 @@ describe('htmlprep()', function() {
       done();
     });
   });
+
+  it('preserves empty attributes', function(done) {
+    var html = '<html><div ng-show></div></html>';
+
+    runProcessor(html, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, html);
+      done();
+    });
+  });
 });
 
 function runProcessor(html, options, callback) {
