@@ -1,6 +1,6 @@
 var through2 = require('through2');
 var _ = require('lodash');
-var debug = require('debug')('4front:htmlprep');
+var debug = require('debug')('htmlprep');
 var Parser = require('htmlparser2').Parser;
 var ParserContext = require('./lib/parserContext');
 
@@ -129,7 +129,6 @@ exports = module.exports = function(options) {
       if (context.removing === true)
         return;
 
-      debugger;
       attribs[customAttrs.build] = null;
     }
 
@@ -198,7 +197,6 @@ exports = module.exports = function(options) {
 };
 
 function buildTag(name, attribs) {
-  debugger;
   var tag = "<" + name;
   for (var key in attribs) {
     var attrValue = attribs[key];
