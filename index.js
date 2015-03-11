@@ -29,6 +29,9 @@ exports = module.exports = function(options) {
     parser.write(chunk);
     callback();
   }, function(callback) {
+    if (!parser)
+      return callback();
+    
     parser.on('end', function() {
       debug('parser ended');
       callback();
