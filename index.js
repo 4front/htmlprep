@@ -1,14 +1,7 @@
 var through2 = require('through2');
 var _ = require('lodash');
 var debug = require('debug')('htmlprep');
-var Parser = require('htmlparser2').Parser;
-var ParserContext = require('./lib/parserContext');
-
-var singletonTags = ['link', 'meta', 'param', 'source', 'area', 'base', 'br', 'col',
-  'command', 'embed', 'hr', 'img', 'input'
-]
-
-var absoluteUrlRe = /^(\/\/|http[s]?:\/\/)/i
+var Parser = require('./lib/parser');
 
 exports = module.exports = function(options) {
   options = _.defaults(options, {
@@ -22,193 +15,27 @@ exports = module.exports = function(options) {
     assetPathPrefix: null
   });
 
-  // Map each custom attribute to the full actual attribute name with the data- prefix followed 
-  // by an optional custom prefix, i.e. data-custom-build
-  var customAttrs = {};
-  _.each(['build', 'placeholder', 'content-variation'], function(name) {
-    customAttrs[name] = 'data-' + (options.attrPrefix ? (options.attrPrefix + '-') : '') + name;
-  });
-
   // if (!_.isEmpty(options.variations)) {
   //   // Load the variations into a map
 
   // }
 
+  var parser;
   return through2(function(chunk, enc, callback) {
-    var context = new ParserContext(this);
+    if (!parser)
+      parser = new Parser(options, this);
 
-    var parser = new Parser({
-      onopentag: function(name, attribs) {
-        onOpenTag(name, attribs, context)
-      },
-      onclosetag: function(name) {
-        onCloseTag(name, context);
-      },
-      ontext: function(text) {
-        if (context.removing === true)
-          return;
-
-        debug("writing text %s", text);
-        context.writeOutput(text);
-      },
-      onprocessinginstruction: function(name, data) {
-        context.writeOutput('<' + data + '>');
-      },
-      onend: function() {
-        callback();
-      }
-    }, {
-      decodeEntities: true
-    });
-
+    debug('received chunk %s', chunk);
     parser.write(chunk);
+    callback();
+  }, function(callback) {
+    parser.on('end', function() {
+      debug('parser ended');
+      callback();
+    });
     parser.end();
   });
-
-  function onOpenTag(name, attribs, context) {
-    name = name.toLowerCase();
-    debug('open %s', name);
-
-    // Content variation block
-    if (context.removing !== true) {
-      var contentVariation = attribs[customAttrs.contentVariation];
-      if (_.isEmpty(contentVariation) === false) {
-        if (context.tagMatch) throw new Error("Invalid nesting of content-variation element");
-
-        context.variations[variation] = new VariationBuffer();
-        context.swapOutput(context.variations[variation]);
-        context.startTagMatch(name, false);
-      }
-
-      var variationName = attribs[customAttrs.variation];
-      if (_.isEmpty(variationName) === false) {
-        if (context.tagMatch) 
-          throw new Error("Invalid nesting of variation element");
-
-        if (options.variation && variationName !== options.variation) {
-          // Check if we have content for this variation name.
-          var substituteContent = context.contentVariations[variationName];
-          if (_.isEmpty(substituteContent) === false) {
-            // Write the substitute content.
-            context.writeOutput(substituteContent); 
-            context.startTagMatch(name, true);
-
-            return;
-          }
-        }
-        attribs[customAttrs.contentSubstitute] = null;
-      }
-
-      // If there is a data-placeholder attribute, replace the tag
-      // with the new contents.
-      var placeholder = attribs[customAttrs.placeholder];
-      if (_.isEmpty(placeholder) === false) {
-        attribs[customAttrs.placeholder] = null;
-
-        context.writeOutput(buildTag(name, attribs));
-
-        if (_.isEmpty(options.inject[placeholder]) === false) {
-          debug('injecting block %s', placeholder);
-          context.writeOutput(options.inject[placeholder]);
-        }
-
-        return;
-      }
-    }
-
-    context.pushOpenTag(name);
-
-    // If in removeMode, don't write to the output stream.
-    if (context.removing === true)
-      return;
-
-    var buildType = attribs[customAttrs.build];
-    if (_.isEmpty(buildType) === false) {
-      context.startTagMatch(name, buildType !== options.buildType);
-
-      if (context.removing === true)
-        return;
-
-      attribs[customAttrs.build] = null;
-    }
-
-    // Some tools capitalize the 'S' in stylesheet but livereload 
-    // requires all lowercase.
-    if (name === 'link' && attribs.rel === 'Stylesheet')
-      attribs.rel = 'stylesheet';
-
-    // Prepend asset paths if a prefix was provided. This is most often used to 
-    // point static assets to a CDN.
-    if (_.isEmpty(options.assetPathPrefix) === false) {
-      if (name === 'link' && attribs.href)
-        prependAssetPath(attribs, 'href');
-      else if (_.contains(['script', 'img', 'embed'], name))
-        prependAssetPath(attribs, 'src');
-    }
-
-    context.writeOutput(buildTag(name, attribs));
-  }
-
-  function onCloseTag(name, context) {
-    name = name.toLowerCase();
-    debug('close %s', name);
-
-    var removing = context.removing;
-    context.popTag(name);
-
-    if (removing === true)
-      return;
-
-    // Don't close singleton tags
-    if (_.contains(singletonTags, name))
-      return;
-
-    // Special blocks appended to the head
-    if (name === 'head') {
-      if (options.inject.head) {
-        context.writeOutput(options.inject.head);
-      }
-    }
-
-    // Append the livereload script at the end of the body.
-    if (name === 'body') {
-      if (options.inject.body) {
-        debug('inject body block');
-        context.writeOutput(options.inject.body);
-      }
-
-      if (options.liveReload === true)
-        context.writeOutput('<script src="//localhost:' + options.liveReloadPort + '/livereload.js"></script>');
-    }
-
-    context.writeOutput("</" + name + ">");
-  }
-
-  function prependAssetPath(attribs, pathAttr) {
-    if (_.isEmpty(attribs[pathAttr]))
-      return;
-
-    // If the path is already absolute, leave it as-is.
-    if (absoluteUrlRe.test(attribs[pathAttr]))
-      return;
-
-    attribs[pathAttr] = options.assetPathPrefix + (attribs[pathAttr][0] === '/' ? '' : '/') + attribs[pathAttr];
-  }
 };
-
-function buildTag(name, attribs) {
-  var tag = "<" + name;
-  for (var key in attribs) {
-    var attrValue = attribs[key];
-    if (_.isString(attrValue) && attrValue.length === 0)
-      tag += " " + key;
-    else if (_.isNull(attrValue) === false)
-      tag += " " + key + "=\"" + attrValue + "\"";
-  }
-  tag += ">";
-  return tag;
-}
-
 
 function VariationBuffer() {
   this._str = '';
