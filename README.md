@@ -135,6 +135,9 @@ All the possible attributes that can be specifed in the `options` parameter.
 ### User-Agent specific blocks
 Exclude blocks of HTML where the request user-agent does not pass an expression test. Useful for including polyfill scripts conditionally or excluding content from mobile devices to lighten the HTML payload.
 
+## License
+Licensed under the Apache License, Version 2.0. See the top-level file LICENSE.txt and (http://www.apache.org/licenses/LICENSE-2.0).
+
 [npm-image]: https://img.shields.io/npm/v/htmlprep.svg?style=flat
 [npm-url]: https://npmjs.org/package/htmlprep
 [travis-image]: https://img.shields.io/travis/4front/htmlprep.svg?style=flat

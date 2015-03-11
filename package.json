@@ -1,6 +1,6 @@
 {
   "name": "htmlprep",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "High-performance streaming HTML pre-processor designed to run in middleware.",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "express"
   ],
   "author": "David Von Lehman",
-  "license": "MIT",
+  "license": "Apache 2.0",
   "bugs": {
     "url": "https://github.com/4front/htmlprep/issues"
   },
