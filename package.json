@@ -1,6 +1,6 @@
 {
   "name": "htmlprep",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "High-performance streaming HTML pre-processor designed to run in middleware.",
   "main": "index.js",
   "scripts": {
@@ -13,12 +13,19 @@
     "url": "https://github.com/4front/htmlprep.git"
   },
   "keywords": [
-    "HTML",
+    "4front",
+    "html",
+    "build",
     "preprocessor",
     "express"
   ],
-  "author": "David Von Lehman",
-  "license": "Apache 2.0",
+  "author": "David Von Lehman <https://github.com/dvonlehman>",
+  "licenses": [
+    {
+      "type": "Apache-2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  ],
   "bugs": {
     "url": "https://github.com/4front/htmlprep/issues"
   },

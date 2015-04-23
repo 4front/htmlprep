@@ -14,7 +14,7 @@ Intended as a light-weight HTML decorator rather than a full-blown template engi
 ## Example
 Use in express route or middleware:
 
-```js
+~~~js
 var htmlprep = require('htmlprep');
 
 res.set('Content-Type', 'text/html');
@@ -23,27 +23,27 @@ fs.createReadStream('./views/index.html')
     assetPathPrefix: '//cdnhost.com/dir'
   }))
   .pipe(res);
-```
+~~~
 
 ## Features
 ### Prepend prefix to asset URLs
 Prepend a string to all `src` and link `href` attributes. Canonical use case is repointing assets to a CDN. If the `assetPathPrefix` option is set to "//cdnhost.com/dir" then:
 
-```html
+~~~html
 <script src="/js/app.js"></script>
 <img src="/images/logo.gif">
-```
+~~~
 becomes:
 
-```html
+~~~html
 <script src="//cdnhost.com/dir/js/app.js"></script>
 <img src="//cdnhost.com/dir/images/logo.gif">
-```
+~~~
 
 ### Build-specific blocks
 Omit HTML blocks or individual tags based on a custom build attribute. Useful for declaring which scripts or stylesheets should be present in release vs. debug mode.
 
-```html
+~~~html
 <link rel="stylesheet" href="/css/layout.css" data-build="debug">
 <link rel="stylesheet" href="/css/nav.css" data-build="debug">
 <link rel="stylesheet" href="/dist/app.min.css" data-build="release">
@@ -53,11 +53,11 @@ Omit HTML blocks or individual tags based on a custom build attribute. Useful fo
     <script src="/js/controllers.js"></script>
 </div>
 <script src="dist/app.min.js" data-build="release">
-```
+~~~
 
 When called with `buildType:"debug"` becomes:
 
-```html
+~~~html
 <link rel="stylesheet" href="/css/layout.css">
 <link rel="stylesheet" href="/css/nav.css">
 <div>
@@ -65,19 +65,19 @@ When called with `buildType:"debug"` becomes:
     <script src="/js/models.js"></script>
     <script src="/js/controllers.js"></script>
 </div>
-```
+~~~
 
 And with `buildType:"release"`:
 
-```html
+~~~html
 <link rel="stylesheet" href="/dist/app.min.css">
 <script src="dist/app.min.js">
-```
+~~~
 
 ### Block injection
 Inject blocks of HTML at render time to the `<head>` or `<body>` tags or to a named block specified with the `data-placeholder` attribute.
 
-```js
+~~~js
 htmlprep({
  inject: {
   head: '<style>body {background-color:blue}</style>'
@@ -86,47 +86,71 @@ htmlprep({
   'after-nav': 'after nav'
  }
 });
-```
-```html
+~~~
+~~~html
 <html>
- <head>
- </head>
- <body>
-  <div data-placeholder="before-nav"></div>
-  <nav></nav>
-  <div data-placeholder="after-nav"></div>
- </body>
+	<head>  
+	</head>
+ 	<body>
+	  	<div data-placeholder="before-nav"></div>
+	  	<nav></nav>
+		<div data-placeholder="after-nav"></div>
+	</body>
 </html>
-```
+~~~
 becomes:
 
-```html
+~~~html
 <html>
- <head>
-   <style>body { background-color:blue; }</style>
- </head>
- <body>
-  <div>before nav</div>
-  <nav></nav>
-  <div>after nav</div>
-  <!-- End of body -->
- </body>
+	<head>
+   		<style>body { background-color:blue; }</style>
+	</head>
+	<body>
+  		<div>before nav</div>
+	  	<nav></nav>
+	  	<div>after nav</div>
+	  	<!-- End of body -->
+	</body>
 </html>
-```
+~~~
 
-### JavaScript and Stylesheet expansion
-Declare a single `script` or `link` with a glob pattern and automatically expand to individual elements for every matching file.
+### JavaScript and stylesheet expansion
+Declare a single `script` or `link` with a glob pattern and automatically expand to individual elements for every matching file. File matches are relative to the directory specified in the `cwd` option.
 
 ~~~html
-
+<html>
+	<head>
+		<link rel="stylesheet" data-expand-href="css/**/*.css"/>
+	</head>
+	<body>
+    	<script data-src-expand="js/**/*.js"></script>
+	</body>
+</html>
 ~~~
+
+becomes:
+
+~~~html
+<html>
+	<head>
+		<link rel="stylesheet" href="main.css"/>
+		<link rel="stylesheet" href="layout.css"/>
+	</head>
+	<body>
+    	<script src="js/app.js"></script>
+    	<script src="js/blog.js"></script>
+    	<script src="js/nav.js"></script>
+  </body>
+</html>
+~~~
+
 
 ### LiveReload
 Appends the livereload script at the end of the body.
 
-```js
+~~~js
 <script src="//localhost:35729/livereload.js"></script>
-```
+~~~
 
 ## Options
 All the possible attributes that can be specifed in the `options` parameter.
@@ -144,7 +168,7 @@ All the possible attributes that can be specifed in the `options` parameter.
 Exclude blocks of HTML where the request user-agent does not pass an expression test. Useful for including polyfill scripts conditionally or excluding content from mobile devices to lighten the HTML payload.
 
 ## License
-Licensed under the Apache License, Version 2.0. See the top-level file LICENSE.txt and (http://www.apache.org/licenses/LICENSE-2.0).
+Licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 [npm-image]: https://img.shields.io/npm/v/htmlprep.svg?style=flat
 [npm-url]: https://npmjs.org/package/htmlprep
