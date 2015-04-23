@@ -1,4 +1,5 @@
 var assert = require('assert');
+var path = require('path');
 var htmlprep = require('..');
 var stream = require('stream');
 var _ = require('lodash');
@@ -43,7 +44,7 @@ describe('htmlprep()', function() {
 
         assert.equal(output, '<html><script src="release.js"></script></html>');
         done();
-      });      
+      });
     });
 
     it('debug build', function(done) {
@@ -52,7 +53,7 @@ describe('htmlprep()', function() {
 
         assert.equal(output, '<html><div><div>debug build</div><script src="debug.js"></script></div></html>');
         done();
-      });      
+      });
     });
   });
 
@@ -179,10 +180,10 @@ describe('htmlprep()', function() {
     // var html = '<html><link rel="stylesheet" data-build="debug" href="css/styles.css"></html>';
     var html = '<head>' +
       '<link data-build="release" rel="stylesheet" href="css/components.min.css">' +
-      '<link data-build="release" rel="stylesheet" href="css/app.min.css">' +  
+      '<link data-build="release" rel="stylesheet" href="css/app.min.css">' +
       '<link data-build="debug" rel="stylesheet" href="bower_components/bootstrap.css">' +
       '<link data-build="debug" rel="stylesheet" href="tmp/styles.css"></head>';
-  
+
     var options = {
       assetPathPrefix: '//cdn.com',
       buildType: 'debug'
@@ -250,6 +251,34 @@ describe('htmlprep()', function() {
 
       assert.equal(output, html);
       done();
+    });
+  });
+
+  describe('expands glob patterns', function() {
+    it('expands script globs', function(done) {
+      var html = "<html><body><script data-src-expand='js/**/*.js'></script></body></html>";
+
+      runProcessor(html, {cwd: path.resolve(__dirname, './fixtures')}, function(err, output) {
+        assert.equal(output, '<html><body><script src="js/app.js"></script>' +
+          '<script src="js/controllers/controller1.js"></script>' +
+          '<script src="js/controllers/controller2.js"></script>' +
+          '</body></html>');
+
+        done();
+      });
+    });
+
+    it('expands stylesheet globs', function(done) {
+      var html = "<html><head><link rel='Stylesheet' type='text/css' data-href-expand='css/**/*.css' /></body></html>";
+
+      runProcessor(html, {cwd: path.resolve(__dirname, './fixtures')}, function(err, output) {
+        assert.equal(output, '<html><head>' +
+          '<link rel="stylesheet" type="text/css" href="css/styles1.css"/>' +
+          '<link rel="stylesheet" type="text/css" href="css/styles2.css"/>' +
+          '</head></html>');
+
+        done();
+      });
     });
   });
 });

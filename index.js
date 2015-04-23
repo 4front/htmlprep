@@ -12,7 +12,8 @@ exports = module.exports = function(options) {
     inject: {}, // Blocks of HTML to be injected
     variation: null, // The name of the variation to render. Omit for default content.
     contentVariations: null, // File with the content variations
-    assetPathPrefix: null
+    assetPathPrefix: null,
+    cwd: process.cwd
   });
 
   // if (!_.isEmpty(options.variations)) {
@@ -31,7 +32,7 @@ exports = module.exports = function(options) {
   }, function(callback) {
     if (!parser)
       return callback();
-    
+
     parser.on('end', function() {
       debug('parser ended');
       callback();
