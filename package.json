@@ -35,8 +35,7 @@
     "glob": "^5.0.5",
     "htmlparser2": "^3.8.2",
     "lodash": "^2.4.1",
-    "through2": "^0.6.3",
-    "ua-parser": "^0.3.5"
+    "through2": "^0.6.3"
   },
   "devDependencies": {
     "coveralls": "^2.11.2",
