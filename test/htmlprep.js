@@ -281,6 +281,18 @@ describe('htmlprep()', function() {
       });
     });
   });
+
+  it('preserves char encoding', function(done) {
+    var html = "&quot;&lt;&gt;&amp;"
+    // var html = "<pre>{&quot;tiddlers&quot;: 'Acknowledgements'}</pre>";
+
+    runProcessor(html, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, html);
+      done();
+    });
+  });
 });
 
 function runProcessor(html, options, callback) {
