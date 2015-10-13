@@ -1,5 +1,6 @@
 var through2 = require('through2');
 var _ = require('lodash');
+var StringDecoder = require('string_decoder').StringDecoder;
 var debug = require('debug')('htmlprep');
 var Parser = require('./lib/parser');
 
@@ -21,17 +22,22 @@ exports = module.exports = function(options) {
 
   // }
 
+  var decoder = new StringDecoder('utf8');
   var parser;
   return through2(function(chunk, enc, callback) {
-    if (!parser)
-      parser = new Parser(options, this);
+    if (!parser) parser = new Parser(options, this);
 
     debug('received chunk %s', chunk);
-    parser.write(chunk);
+
+    // Use the StringDecoder which will buffer up any multi-byte characters that
+    // get split up.
+    parser.write(decoder.write(chunk));
     callback();
   }, function(callback) {
-    if (!parser)
-      return callback();
+    if (!parser) return callback();
+
+    // Do one last purge of the StringDecoder buffer in case there's anything left.
+    // parser.write(decoder.end());
 
     parser.on('end', function() {
       debug('parser ended');
@@ -43,12 +49,12 @@ exports = module.exports = function(options) {
 
 function VariationBuffer() {
   this._str = '';
-};
+}
 
 VariationBuffer.prototype.push = function(str) {
   this._str += str;
-}
+};
 
 VariationBuffer.prototype.toString = function() {
   return this._str;
-}
+};
