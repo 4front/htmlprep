@@ -29,17 +29,17 @@ describe('htmlprep()', function() {
     before(function() {
       this.html = [
         '<html>',
-          '<div data-build="debug">',
-            '<div>debug build</div>',
-            '<script src="debug.js"></script>',
-          '</div>',
-          '<script src="release.js" data-build="release"></script>',
+        '<div data-build="debug">',
+        '<div>debug build</div>',
+        '<script src="debug.js"></script>',
+        '</div>',
+        '<script src="release.js" data-build="release"></script>',
         '</html>'
       ].join('');
     });
 
     it('release build', function(done) {
-      runProcessor(this.html, {buildType:'release'}, function(err, output) {
+      runProcessor(this.html, {buildType: 'release'}, function(err, output) {
         if (err) return done(err);
 
         assert.equal(output, '<html><script src="release.js"></script></html>');
@@ -48,7 +48,7 @@ describe('htmlprep()', function() {
     });
 
     it('debug build', function(done) {
-      runProcessor(this.html, {buildType:'debug'}, function(err, output) {
+      runProcessor(this.html, {buildType: 'debug'}, function(err, output) {
         if (err) return done(err);
 
         assert.equal(output, '<html><div><div>debug build</div><script src="debug.js"></script></div></html>');
@@ -283,9 +283,19 @@ describe('htmlprep()', function() {
   });
 
   it('preserves char encoding', function(done) {
-    var html = "&quot;&lt;&gt;&amp;"
+    var html = '&quot;&lt;&gt;&amp;';
     // var html = "<pre>{&quot;tiddlers&quot;: 'Acknowledgements'}</pre>";
 
+    runProcessor(html, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, html);
+      done();
+    });
+  });
+
+  it('preserves chinese characters', function(done) {
+    var html = '<p>我通常使用Socks或者Http代理做为科学上网方案， 但仍然有很多需要全局代理的场景， 例如像Android SDK类似的各种墙外工具的更新， 或者不能使用Socks代理的手机等， 还有的时候我们希望为亲朋好友提供一个科学上网的方案， 只需要账号密码的VPN方式是最佳的选择。 如果你需要你的VPN更加安全稳定， 那我要推荐你使用OpenVPN和ShadowVPN， 他们更加高效和安全。 当然如果你使用个人的VPS做PPTP VPN， 被追踪的可能也很小， 最重要的是如果你需要这个VPN不依赖于客户端随时随地任意设备可用， PPTP VPN最佳选择之一。 阅读以下内容前，您应该拥有一个可访问的VPS(什么是VPS？)。 可选的VPS有很多，热门的有DigitalOcean, Linode, Vultr, Bandwagon(俗称‘搬瓦工’)等等。 我个人推荐Vultr和DigitalOcean，理由是便宜、稳定、SSD、机房多、有日本机房(中国访问快)， 最近维护VPS的时候出现了一些问题， 客服态度非常好， 反应也很迅速， 这个非常重要。 使用以下链接注册可以帮你立省10$， 够用两个月了。 这也是我写这篇文章的动力之一， 这也是我写这篇文章的动力之一，这也是我写这篇文章的动力之一，这也是我写这篇文章的动力之一，这也是我写这篇文章的动力之一，这也是我写这篇文章的动力之一，这也是我写这篇文章的动力之一，这也是我写这篇文章的动力之一，这也是我写这篇文章的动力之一，这也是我写这篇文章的动力之一，这也是我写这篇文章的动力之一，这也是我写这篇文章的动力之一，这也是我写这篇文章的动力之一，你好我好大家好： http://www.vultr.com/?ref ...</p>';
     runProcessor(html, function(err, output) {
       if (err) return done(err);
 
@@ -315,9 +325,8 @@ function runProcessor(html, options, callback) {
 }
 
 function readStream(str) {
-  var Readable = stream.Readable;
-  var rs = Readable();
-  rs._read = function () {
+  var rs = stream.Readable();
+  rs._read = function() {
     rs.push(str);
     rs.push(null);
   };
