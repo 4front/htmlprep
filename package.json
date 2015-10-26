@@ -1,6 +1,6 @@
 {
   "name": "htmlprep",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "High-performance streaming HTML pre-processor designed to run in middleware.",
   "main": "index.js",
   "scripts": {
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.2",
-    "eslint": "^1.6.0",
+    "eslint": "^1.7.3",
     "eslint-config-4front": "4front/eslint-config-4front",
     "istanbul": "^0.3.5",
     "mocha": "^2.1.0"
