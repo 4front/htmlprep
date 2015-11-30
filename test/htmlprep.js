@@ -314,6 +314,17 @@ describe('htmlprep()', function() {
       done();
     });
   });
+
+  it('preserves code formatting in a code tag', function(done) {
+    var html = '<html><code><SubmitButton className="button"/><Component><Button/></Component></code></html>';
+
+    runProcessor(html, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, html);
+      done();
+    });
+  });
 });
 
 function runProcessor(html, options, callback) {
