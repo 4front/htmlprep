@@ -315,6 +315,17 @@ describe('htmlprep()', function() {
     });
   });
 
+  it('strips out tags with data-strip attribute', function(done) {
+    var html = '<html><head><script data-strip>var __global={};</script></head></html>';
+
+    runProcessor(html, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<html><head></head></html>');
+      done();
+    });
+  });
+
   it('preserves code formatting in a code tag', function(done) {
     var html = '<html><code><SubmitButton className="button"/><Component><Button/></Component></code></html>';
 
@@ -322,6 +333,17 @@ describe('htmlprep()', function() {
       if (err) return done(err);
 
       assert.equal(output, html);
+      done();
+    });
+  });
+
+  it('appends nested paths to relative paths', function(done) {
+    var html = '<html><img src="../images/summer.png"></html>';
+
+    runProcessor(html, {assetPathPrefix: '//cdnhost.com/site123/v1', pathFromRoot: 'blog'}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<html><img src="//cdnhost.com/site123/v1/blog/../images/summer.png"/></html>');
       done();
     });
   });
