@@ -326,6 +326,17 @@ describe('htmlprep()', function() {
     });
   });
 
+  it('script tag with no src attribute', function(done) {
+    var html = '<html><script>function() {}</script></html>';
+
+    runProcessor(html, {assetPathPrefix: 'cdnhost.com'}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, html);
+      done();
+    });
+  });
+
   it('strips out tags with data-strip attribute', function(done) {
     var html = '<html><head><script data-strip>var __global={};</script></head></html>';
 
