@@ -315,6 +315,17 @@ describe('htmlprep()', function() {
     });
   });
 
+  it('does not prepend path to embedded images', function(done) {
+    var html = '<html><img src="data:image/png;base64,VBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAAC"/></html>';
+
+    runProcessor(html, {assetPathPrefix: 'cdnhost.com'}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, html);
+      done();
+    });
+  });
+
   it('strips out tags with data-strip attribute', function(done) {
     var html = '<html><head><script data-strip>var __global={};</script></head></html>';
 
