@@ -369,6 +369,17 @@ describe('htmlprep()', function() {
       done();
     });
   });
+
+  it('appends pathFromRoot to same directory relative paths', function(done) {
+    var html = '<html><img src="images/summer.png"></html>';
+
+    runProcessor(html, {assetPathPrefix: '//cdnhost.com/site123/v1', pathFromRoot: 'blog'}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<html><img src="//cdnhost.com/site123/v1/blog/images/summer.png"/></html>');
+      done();
+    });
+  });
 });
 
 function runProcessor(html, options, callback) {
