@@ -14,7 +14,8 @@ exports = module.exports = function(options) {
     variation: null, // The name of the variation to render. Omit for default content.
     contentVariations: null, // File with the content variations
     assetPathPrefix: null,
-    cwd: process.cwd
+    cwd: process.cwd,
+    fingerprintQuery: '__fp' // Name of the fingerprint query parameter
   });
 
   // if (!_.isEmpty(options.variations)) {

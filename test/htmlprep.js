@@ -380,6 +380,17 @@ describe('htmlprep()', function() {
       done();
     });
   });
+
+  it('tacks on fingerprint to src attributes with data-fingerprint', function(done) {
+    var html = '<html><img data-fingerprint src="images/summer.png"></html>';
+
+    runProcessor(html, {fingerprint: '123'}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<html><img src="images/summer.png?__fp=123"/></html>');
+      done();
+    });
+  });
 });
 
 function runProcessor(html, options, callback) {
