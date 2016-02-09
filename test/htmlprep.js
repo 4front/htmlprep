@@ -391,6 +391,27 @@ describe('htmlprep()', function() {
       done();
     });
   });
+
+  it('preserves quotes in attributes', function(done) {
+    var html = '<body class="index" data-languages="[\'angular\',\'template\']"></body>';
+
+    runProcessor(html, {}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, html);
+      done();
+    });
+  });
+
+  it('preserves entity escaped chars in attributes', function(done) {
+    var html = '<body data-languages="{&quot;test&quot;:&quot;1&quot;}"></body>';
+    runProcessor(html, {}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, html);
+      done();
+    });
+  });
 });
 
 function runProcessor(html, options, callback) {
