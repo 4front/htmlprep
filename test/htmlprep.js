@@ -412,6 +412,21 @@ describe('htmlprep()', function() {
       done();
     });
   });
+
+  it('preserves old IE conditional stylesheets', function(done) {
+    var html = ['<html><head>',
+      '<!--[if IE]>',
+	    '<link rel="stylesheet" type="text/css" href="ie-only.css"/>', // eslint-disable-line
+      '<![endif]-->',
+      '</head></html>'].join('\n');
+
+    runProcessor(html, {}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, html);
+      done();
+    });
+  });
 });
 
 function runProcessor(html, options, callback) {
