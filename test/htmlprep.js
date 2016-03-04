@@ -427,6 +427,17 @@ describe('htmlprep()', function() {
       done();
     });
   });
+
+  it('does not modify src in non-standard html tags', function(done) {
+    var html = '<ng-include src="\'header.html\'"></ng-include>';
+
+    runProcessor(html, {assetPathPrefix: '//cdnhost.com/'}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, html);
+      done();
+    });
+  });
 });
 
 function runProcessor(html, options, callback) {
