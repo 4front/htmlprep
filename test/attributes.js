@@ -185,4 +185,14 @@ describe('htmlprep attributes', function() {
       done();
     });
   });
+
+  it('strips leading slashes from anchor href attributes', function(done) {
+    var html = '<body><a href="//somesite.com">ok</a><a href="//posts/about">about</a></body>';
+    run(html, {assetPathPrefix: '//cdnhost.com'}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<body><a href="//somesite.com">ok</a><a href="/posts/about">about</a></body>');
+      done();
+    });
+  });
 });
