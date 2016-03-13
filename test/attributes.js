@@ -195,4 +195,81 @@ describe('htmlprep attributes', function() {
       done();
     });
   });
+
+  it('replaces site base url placeholder with cdn url', function(done) {
+    var html = '<body><script src="https://__baseurl__/js/site.js"></script></body>';
+    var opts = {
+      assetPathPrefix: '//cdnhost.com',
+      baseUrlPlaceholder: 'https://__baseurl__'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<body><script src="//cdnhost.com/js/site.js"></script></body>');
+      done();
+    });
+  });
+
+  it('substitutes base url placeholder with base url', function(done) {
+    var html = '<body><a href="https://__baseurl__/post/about">about</a></body>';
+    var opts = {
+      baseUrlPlaceholder: 'https://__baseurl__',
+      baseUrl: 'https://mysite.com'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<body><a href="https://mysite.com/post/about">about</a></body>');
+      done();
+    });
+  });
+
+  it('handles double slash when subsituting base url', function(done) {
+    var html = '<body><a href="https://__baseurl__//post/about">about</a></body>';
+    var opts = {
+      baseUrlPlaceholder: 'https://__baseurl__',
+      baseUrl: 'https://mysite.com'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<body><a href="https://mysite.com/post/about">about</a></body>');
+      done();
+    });
+  });
+
+  it('updates inline background image urls', function(done) {
+    var html = '<body><div style="background-image:url(https://__baseurl__/img/bg.jpg)"></div></body>';
+    var opts = {
+      baseUrlPlaceholder: 'https://__baseurl__',
+      baseUrl: 'https://mysite.com',
+      assetPathPrefix: '//cdnhost.com'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<body><div style="background-image:url(//cdnhost.com/img/bg.jpg)"></div></body>');
+      done();
+    });
+  });
+
+  it('updates baseurl embedded in querystrings', function(done) {
+    var html = '<body><a href="http://www.twitter.com/share?url=https%3a%2f%2f__baseurl__%2fabout%2f" target="_blank">share</a></body>';
+
+    var opts = {
+      baseUrlPlaceholder: 'https://__baseurl__',
+      baseUrl: 'https://mysite.com'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<body><a href="http://www.twitter.com/share?url=https%3a%2f%2fmysite.com%2fabout%2f" target="_blank">share</a></body>');
+      done();
+    });
+  });
 });
