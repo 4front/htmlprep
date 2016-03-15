@@ -272,4 +272,20 @@ describe('htmlprep attributes', function() {
       done();
     });
   });
+
+  it('updates rss link attributes', function(done) {
+    var html = '<html><link href="https://__baseurl__/index.xml" rel="alternate" type="application/rss+xml" title="RSS feed"/></html>';
+
+    var opts = {
+      baseUrlPlaceholder: 'https://__baseurl__',
+      baseUrl: 'https://mysite.com'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<html><link href="https://mysite.com/index.xml" rel="alternate" type="application/rss+xml" title="RSS feed"/></html>');
+      done();
+    });
+  });
 });
