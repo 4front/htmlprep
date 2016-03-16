@@ -1,3 +1,4 @@
+/* eslint max-len: 0 */
 var assert = require('assert');
 var run = require('./run');
 
@@ -285,6 +286,22 @@ describe('htmlprep attributes', function() {
       if (err) return done(err);
 
       assert.equal(output, '<html><link href="https://mysite.com/index.xml" rel="alternate" type="application/rss+xml" title="RSS feed"/></html>');
+      done();
+    });
+  });
+
+  it('does not prepend assets paths based on noAssetPathPrefixes', function(done) {
+    var html = '<html><div style="background-image:url(/img/bg.jpg)"></div><img src="logo.jpg"/></html>';
+
+    var opts = {
+      noPathPrefixPatterns: ['/img/*.jpg'],
+      assetPathPrefix: '//cdn.net/'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<html><div style="background-image:url(/img/bg.jpg)"></div><img src="//cdn.net/logo.jpg"/></html>');
       done();
     });
   });

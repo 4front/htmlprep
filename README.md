@@ -27,7 +27,7 @@ fs.createReadStream('./views/index.html')
 
 ## Features
 ### Prepend prefix to asset URLs
-Prepend a string to all `src` and link `href` attributes. Canonical use case is repointing assets to a CDN. If the `assetPathPrefix` option is set to "//cdnhost.com/dir" then:
+Prepend a string to all `src` and link `href` attributes. Canonical use case is repointing assets to a CDN. If the `assetPathPrefix` option is set to "//cdnhost.com/assets" then:
 
 ~~~html
 <script src="/js/app.js"></script>
@@ -36,8 +36,19 @@ Prepend a string to all `src` and link `href` attributes. Canonical use case is 
 becomes:
 
 ~~~html
-<script src="//cdnhost.com/dir/js/app.js"></script>
-<img src="//cdnhost.com/dir/images/logo.gif">
+<script src="//cdnhost.com/assets/js/app.js"></script>
+<img src="//cdnhost.com/assets/images/logo.gif">
+~~~
+
+You can prevent this behavior for specific assets by providing a list of glob patterns to the `noPathPrefixPatterns` option. The value of the each asset path, i.e. `/images/logo.gif` is evaluated against each pattern using [minimatch](https://www.npmjs.com/package/minimatch).
+
+For example if you wanted all `.jpg` files in the images directory to be left alone, you'd do this:
+
+~~~js
+htmlprep({
+  assetPathPrefix: '//cdhhost.com/assets',
+  noPathPrefixPatterns: ['/images/*.jpg']
+});
 ~~~
 
 ### Build-specific blocks
