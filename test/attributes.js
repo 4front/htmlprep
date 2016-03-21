@@ -305,4 +305,36 @@ describe('htmlprep attributes', function() {
       done();
     });
   });
+
+  it('trims leading whitespace from attributes', function(done) {
+    var html = '<a href=" https://__baseurl__" class="btn btn-default"><i class="fa fa-home"></i> Home</a>';
+
+    var opts = {
+      baseUrlPlaceholder: 'https://__baseurl__',
+      baseUrl: 'https://domain.net'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<a href="https://domain.net/" class="btn btn-default"><i class="fa fa-home"></i> Home</a>');
+      done();
+    });
+  });
+
+  it('it update open graph urls', function(done) {
+    var html = '<head><meta property="og:url" content="https://__baseurl__/path"></head>';
+
+    var opts = {
+      baseUrlPlaceholder: 'https://__baseurl__',
+      baseUrl: 'https://domain.net'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<head><meta property="og:url" content="https://domain.net/path"/></head>');
+      done();
+    });
+  });
 });
