@@ -337,4 +337,56 @@ describe('htmlprep attributes', function() {
       done();
     });
   });
+
+  it('it update open graph urls', function(done) {
+    var html = '<head><meta name="twitter:image" content="https://__baseurl__/assets/logo.png"/></head>';
+
+    var opts = {
+      baseUrlPlaceholder: 'https://__baseurl__',
+      baseUrl: 'https://domain.net'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<head><meta name="twitter:image" content="https://domain.net/assets/logo.png"/></head>');
+      done();
+    });
+  });
+
+  it('updates baseurl in social sharing links', function(done) {
+    var html = '<a href="//twitter.com/share?text=share&url=https://__baseurl__/share&via=website">twitter</a>';
+
+    var opts = {
+      baseUrlPlaceholder: 'https://__baseurl__',
+      baseUrl: 'https://domain.net'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<a href="//twitter.com/share?text=share&url=https://domain.net/share&via=website">twitter</a>');
+      done();
+    });
+  });
+
+  it('updates baseurl in onclick attributes', function(done) {
+    var html = '<a href="//www.reddit.com/submit" onclick="window.location=\'//www.reddit.com/submit?url=\'' +
+      'encodeURIComponent(\'https://__baseurl__/share\') + \'&title=share\'; return false">reddit</a>';
+
+    var opts = {
+      baseUrlPlaceholder: 'https://__baseurl__',
+      baseUrl: 'https://domain.net'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      var expected = '<a href="//www.reddit.com/submit" onclick="window.location=\'//www.reddit.com/submit?url=\'' +
+        'encodeURIComponent(\'https://domain.net/share\') + \'&title=share\'; return false">reddit</a>';
+
+      assert.equal(expected, output);
+      done();
+    });
+  });
 });
