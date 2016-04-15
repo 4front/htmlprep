@@ -1,9 +1,9 @@
-var _ = require('lodash');
+var isFunction = require('lodash.isfunction');
 var htmlprep = require('../');
 var stream = require('stream');
 
 module.exports = function(html, options, callback) {
-  if (_.isFunction(options)) {
+  if (isFunction(options)) {
     callback = options;
     options = {};
   }

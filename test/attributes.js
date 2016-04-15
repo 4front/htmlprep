@@ -306,6 +306,22 @@ describe('htmlprep attributes', function() {
     });
   });
 
+  it('noAssetPathPrefixes handles non-leading slash', function(done) {
+    var html = '<html><img src="img/bg.jpg"/></html>';
+
+    var opts = {
+      noPathPrefixPatterns: ['/img/*.jpg'],
+      assetPathPrefix: '//cdn.net/'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, html);
+      done();
+    });
+  });
+
   it('trims leading whitespace from attributes', function(done) {
     var html = '<a href=" https://__baseurl__" class="btn btn-default"><i class="fa fa-home"></i> Home</a>';
 

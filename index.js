@@ -1,11 +1,11 @@
 var through2 = require('through2');
-var _ = require('lodash');
+var defaults = require('lodash.defaults');
 var StringDecoder = require('string_decoder').StringDecoder;
 var debug = require('debug')('htmlprep');
 var Parser = require('./lib/parser');
 
 exports = module.exports = function(options) {
-  options = _.defaults(options, {
+  options = defaults(options, {
     attrPrefix: null,
     buildType: 'debug',
     liveReload: false, // Should livereload script be injected
