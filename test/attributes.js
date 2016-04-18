@@ -109,7 +109,7 @@ describe('htmlprep attributes', function() {
     run(html, {assetPathPrefix: '//cdnhost.com/site123/v1', pathFromRoot: 'blog'}, function(err, output) {
       if (err) return done(err);
 
-      assert.equal(output, '<html><img src="//cdnhost.com/site123/v1/blog/../images/summer.png"/></html>');
+      assert.equal(output, '<html><img src="//cdnhost.com/site123/v1/images/summer.png"/></html>');
       done();
     });
   });
@@ -312,6 +312,23 @@ describe('htmlprep attributes', function() {
     var opts = {
       noPathPrefixPatterns: ['/img/*.jpg'],
       assetPathPrefix: '//cdn.net/'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, html);
+      done();
+    });
+  });
+
+  it('noAssetPathPrefixes handles non-leading slash on nested page', function(done) {
+    var html = '<html><img src="../img/bg.jpg"/></html>';
+
+    var opts = {
+      noPathPrefixPatterns: ['/img/*.jpg'],
+      assetPathPrefix: '//cdn.net/',
+      pathFromRoot: '/blog'
     };
 
     run(html, opts, function(err, output) {
