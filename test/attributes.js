@@ -422,4 +422,15 @@ describe('htmlprep attributes', function() {
       done();
     });
   });
+
+  it('does not append a content attribute to meta tags', function(done) {
+    var html = '<html><meta charset="UTF-8"/></html>';
+
+    run(html, {}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(html, output);
+      done();
+    });
+  });
 });
