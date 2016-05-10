@@ -36,7 +36,10 @@ exports = module.exports = function(options) {
   var decoder = new StringDecoder('utf8');
   var parser;
   return through2(function(chunk, enc, callback) {
-    if (!parser) parser = new Parser(options, this);
+    if (!parser) {
+      this.emit('start');
+      parser = new Parser(options, this);
+    }
 
     debug('received chunk %s', chunk);
 
