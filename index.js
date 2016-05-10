@@ -1,5 +1,8 @@
 var through2 = require('through2');
 var defaults = require('lodash.defaults');
+var endsWith = require('lodash.endswith');
+var trimEnd = require('lodash.trimend');
+var isString = require('lodash.isstring');
 var StringDecoder = require('string_decoder').StringDecoder;
 var debug = require('debug')('htmlprep');
 var Parser = require('./lib/parser');
@@ -16,6 +19,13 @@ exports = module.exports = function(options) {
     assetPathPrefix: null,
     cwd: process.cwd,
     fingerprintQuery: '__fp' // Name of the fingerprint query parameter
+  });
+
+  // Ensure both the baseUrl and baseUrlPlaceholder do not have trailing slashes
+  ['baseUrl', 'baseUrlPlaceholder'].forEach(function(prop) {
+    if (isString(options[prop]) && endsWith(options[prop], '/')) {
+      options[prop] = trimEnd(options[prop], '/');
+    }
   });
 
   // if (!_.isEmpty(options.variations)) {
