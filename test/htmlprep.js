@@ -306,4 +306,32 @@ describe('htmlprep()', function() {
       done();
     });
   });
+
+  it('fixes asset paths in inline css', function(done) {
+    var html =
+      '<style>' +
+        '.author {background-image: url(//assets/images/author.jpg);}' +
+        '.logo {background-image: url("https://__baseurl__/logo.png");}' +
+      '</style>';
+
+    var opts = {
+      assetPathPrefix: '//cdnhost.com/',
+      baseUrl: 'https://domain.com',
+      baseUrlPlaceholder: 'https://__baseurl__',
+      pathFromRoot: 'subfolder'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      var expected =
+        '<style>' +
+          '.author {background-image: url(//cdnhost.com/assets/images/author.jpg);}' +
+          '.logo {background-image: url(//cdnhost.com/logo.png);}' +
+        '</style>';
+
+      assert.equal(output, expected);
+      done();
+    });
+  });
 });

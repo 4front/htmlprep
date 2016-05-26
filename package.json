@@ -1,6 +1,6 @@
 {
   "name": "htmlprep",
-  "version": "1.6.5",
+  "version": "2.0.0",
   "description": "High-performance streaming HTML pre-processor designed to run in middleware.",
   "main": "index.js",
   "scripts": {
@@ -42,7 +42,9 @@
     "lodash.isfunction": "^3.0.8",
     "lodash.isnull": "^3.0.0",
     "lodash.isstring": "^4.0.1",
+    "lodash.startswith": "^4.1.0",
     "lodash.toarray": "^4.2.4",
+    "lodash.trim": "^4.4.0",
     "lodash.trimend": "^4.3.0",
     "lodash.trimstart": "^4.3.0",
     "minimatch": "^3.0.0",
