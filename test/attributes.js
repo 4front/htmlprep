@@ -188,11 +188,11 @@ describe('htmlprep attributes', function() {
   });
 
   it('strips leading slashes from anchor href attributes', function(done) {
-    var html = '<body><a href="//somesite.com">ok</a><a href="//posts/about">about</a></body>';
+    var html = '<body><a href="https://somesite.com">ok</a><a href="//posts/about">about</a></body>';
     run(html, {assetPathPrefix: '//cdnhost.com'}, function(err, output) {
       if (err) return done(err);
 
-      assert.equal(output, '<body><a href="//somesite.com">ok</a><a href="/posts/about">about</a></body>');
+      assert.equal(output, '<body><a href="https://somesite.com">ok</a><a href="/posts/about">about</a></body>');
       done();
     });
   });
@@ -274,18 +274,13 @@ describe('htmlprep attributes', function() {
     });
   });
 
-  // it('eliminates redundant forward slashes', function(done) {
-  //   var html = '<a href="//" class="logo"><amp-img src="//assets/logo.png"/></a>' +
-  //     '<style>.author-image {background-image: url(//assets/images/author.jpg);}</style>';
-  //
-  //   var expected = '<a href="/" class="logo"><amp-img src="/assets/logo.png"/></a>' +
-  //     '<style>.author-image {background-image: url(/assets/images/author.jpg);}</style>';
-  //
-  //   run(html, {}, function(err, output) {
-  //     if (err) return done(err);
-  //
-  //     assert.equal(output, expected);
-  //     done();
-  //   });
-  // });
+  it('eliminates redundant forward slashes', function(done) {
+    var html = '<a href="//feed.xml">feed</a>';
+    run(html, {}, function(err, output) {
+      if (err) return done(err);
+
+      assert.equal(output, '<a href="/feed.xml">feed</a>');
+      done();
+    });
+  });
 });
