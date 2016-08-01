@@ -284,12 +284,12 @@ describe('htmlprep()', function() {
   });
 
   it('replaces baseUrl in text nodes', function(done) {
-    var html = '<html><div>https://__baseurl__</div><script>var url="https://__baseurl__";</script></html>';
+    var html = '<html><div>https://__baseurl__/foo</div><script>var url="https://__baseurl__";</script></html>';
     var opts = {baseUrl: 'https://domain.com', baseUrlPlaceholder: 'https://__baseurl__'};
     run(html, opts, function(err, output) {
       if (err) return done(err);
 
-      var expected = '<html><div>https://domain.com</div><script>var url="https://domain.com";</script></html>';
+      var expected = '<html><div>https://domain.com/foo</div><script>var url="https://domain.com/";</script></html>';
       assert.equal(output, expected);
       done();
     });
@@ -301,7 +301,7 @@ describe('htmlprep()', function() {
     run(html, opts, function(err, output) {
       if (err) return done(err);
 
-      var expected = '<html><script>var url="https://domain.com/bar";var url2="https://domain.com";</script></html>';
+      var expected = '<html><script>var url="https://domain.com/bar";var url2="https://domain.com/";</script></html>';
       assert.equal(output, expected);
       done();
     });

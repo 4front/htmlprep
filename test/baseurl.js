@@ -19,7 +19,7 @@ describe('baseurl replacement', function() {
   });
 
   it('updates baseurl embedded in querystrings', function(done) {
-    var html = '<body><a href="http://www.twitter.com/share?url=https%3a%2f%2f__baseurl__%2fabout%2f" target="_blank">share</a></body>';
+    var html = '<body><a href="http://www.twitter.com/share?url=https%3a%2F%2F__baseurl__%2Fabout%2F" target="_blank">share</a></body>';
 
     var opts = {
       baseUrlPlaceholder: 'https://__baseurl__',
@@ -29,7 +29,7 @@ describe('baseurl replacement', function() {
     run(html, opts, function(err, output) {
       if (err) return done(err);
 
-      assert.equal(output, '<body><a href="http://www.twitter.com/share?url=https%3a%2f%2fmysite.com%2fabout%2f" target="_blank">share</a></body>');
+      assert.equal(output, '<body><a href="http://www.twitter.com/share?url=https%3A%2F%2Fmysite.com%2Fabout%2F" target="_blank">share</a></body>');
       done();
     });
   });
@@ -154,7 +154,7 @@ describe('baseurl replacement', function() {
     run(html, opts, function(err, output) {
       if (err) return done(err);
 
-      assert.equal(output, '<a href="//twitter.com/share?text=share&url=https://domain.net/share&via=website">twitter</a>');
+      assert.equal(output, '<a href="//twitter.com/share?text=share&url=https%3A%2F%2Fdomain.net%2Fshare&via=website">twitter</a>');
       done();
     });
   });
@@ -173,6 +173,28 @@ describe('baseurl replacement', function() {
 
       var expected = '<a href="//www.reddit.com/submit" onclick="window.location=\'//www.reddit.com/submit?url=\'' +
         'encodeURIComponent(\'https://domain.net/share\') + \'&title=share\'; return false">reddit</a>';
+
+      assert.equal(expected, output);
+      done();
+    });
+  });
+
+  it('updates baseurl in data- attributes', function(done) {
+    var html = '<a href="http://twitter.com/share" class="twitter-share-button" data-url="https://__baseurl__//blog">Tweet</a>' +
+      '<div class="fb-like" data-href="https://__baseurl__//2016/07/26/blog"></div>' +
+      '<div id="comments" class="fb-comments" data-num-posts="50" data-width="700" data-href="https://__baseurl__//blog"></div>';
+
+    var opts = {
+      baseUrlPlaceholder: 'https://__baseurl__',
+      baseUrl: 'https://domain.net'
+    };
+
+    run(html, opts, function(err, output) {
+      if (err) return done(err);
+
+      var expected = '<a href="http://twitter.com/share" class="twitter-share-button" data-url="https://domain.net/blog">Tweet</a>' +
+        '<div class="fb-like" data-href="https://domain.net/2016/07/26/blog"></div>' +
+        '<div id="comments" class="fb-comments" data-num-posts="50" data-width="700" data-href="https://domain.net/blog"></div>';
 
       assert.equal(expected, output);
       done();
