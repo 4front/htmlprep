@@ -1,7 +1,6 @@
 var assert = require('assert');
 var path = require('path');
 var run = require('./run');
-var debug = require('debug');
 
 describe('htmlprep()', function() {
   it('pipes html', function(done) {
